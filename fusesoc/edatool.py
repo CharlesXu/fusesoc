@@ -30,6 +30,7 @@ class EdaTool(object):
         self.fusesoc_options = eda_api['tool_options']['fusesoc']
         self.flags = {'tool'   : self.TOOL_NAME,
                       'flow'   : self.TOOL_TYPE}
+        self.flags['target'] = "stream_upsizer_tb" #FIXME
         build_root = os.path.join(Config().build_root, self.name)
 
         self.src_root  = os.path.join(build_root, 'src')
