@@ -8,6 +8,7 @@ import logging
 
 from fusesoc.config import Config
 from fusesoc.coremanager import CoreManager
+from fusesoc.utils import run_scripts
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class EdaTool(object):
         self.export = export
         self.TOOL_NAME = self.__class__.__name__.lower()
         self.tool_options = eda_api['tool_options'][self.TOOL_NAME]
+        self.fusesoc_options = eda_api['tool_options']['fusesoc']
         self.flags = {'tool'   : self.TOOL_NAME,
                       'flow'   : self.TOOL_TYPE}
         build_root = os.path.join(Config().build_root, self.name)
@@ -38,9 +40,6 @@ class EdaTool(object):
 
         self.env = os.environ.copy()
 
-        #FIXME: Remove BUILD_ROOT once cores have had some time
-        # to migrate to SRC_ROOT/WORK_ROOT
-        self.env['BUILD_ROOT'] = os.path.abspath(build_root)
         self.env['SRC_ROOT']  = os.path.abspath(self.src_root)
         self.env['WORK_ROOT'] = os.path.abspath(self.work_root)
 
@@ -65,6 +64,12 @@ class EdaTool(object):
                     os.remove(os.path.join(self.work_root, f))
         else:
             os.makedirs(self.work_root)
+
+    def build(self):
+        if 'pre_build_scripts' in self.fusesoc_options:
+            run_scripts(self.fusesoc_options['pre_build_scripts'],
+                        self.work_root,
+                        self.env)
 
     def parse_args(self, args, prog, paramtypes):
         if self.parsed_args:

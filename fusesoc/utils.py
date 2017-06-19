@@ -62,11 +62,14 @@ def convert_V2H( read_file, write_file):
             fC.close
             fV.close
 
-def run_scripts(scripts, scripts_root, cwd, env):
-    for script_name in scripts:
-        script = os.path.abspath(os.path.join(scripts_root, script_name))
-        logger.info("Running " + script);
-        Launcher(script, cwd = cwd, env = env, shell=True).run()
+def run_scripts(scripts, cwd, env):
+    for script in scripts:
+        for cmd, options in script.items():
+            _env = env.copy()
+            if 'env' in options:
+                _env.update(options['env'])
+            logger.info("Running " + cmd);
+            Launcher(cmd, cwd = cwd, env = _env, shell=True).run()
 
 def find_verilator():
     verilator_root = os.getenv('VERILATOR_ROOT')
